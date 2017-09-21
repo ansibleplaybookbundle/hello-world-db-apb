@@ -6,6 +6,7 @@ async: optional
 metadata:
   displayName: Hello World Database (APB)
   dependencies: ['docker.io/centos/postgresql-94-centos7']
+  providerDisplayName: "Red Hat, Inc."
 plans:
   - name: default
     description: A sample APB which deploys Hello World Database
