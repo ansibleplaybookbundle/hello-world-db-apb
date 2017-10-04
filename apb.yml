@@ -1,6 +1,5 @@
 version: 1.0
 name: hello-world-db-apb
-image: ansibleplaybookbundle/hello-world-db-apb
 description: A sample APB which deploys Hello World Database
 bindable: True
 async: optional
