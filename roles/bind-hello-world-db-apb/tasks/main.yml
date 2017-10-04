@@ -1,0 +1,73 @@
+#############################################################################
+# Create binding to hello-world-db
+# This role will create a new database, user, and privileges to give a
+# unique connection for each binding which can be deleted when unbinding
+#
+# _apb_provision_creds - We use the provision encoded credentials as admin
+# credentials to perform the necessary tasks.  The created user to be deleted
+#
+# _apb_bind_creds - was stored as part of the bind encoded credentials and
+# and contains the database name and user information
+#
+# login_host uses the service which needs to be namespace qualified to resolve
+#############################################################################
+
+
+#############################################################################
+# Create a new database for each binding. In many cases we may not want to
+# create the database for deletion later only the user and privileges, in that
+# case the database should be created during provision and not in the bind.
+#############################################################################
+- name: create database
+  postgresql_db:
+    name: "{{ postgresql_db_name }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+
+
+#############################################################################
+# Create a user for the new database
+#############################################################################
+- name: create database user
+  postgresql_user:
+    db: "{{ postgresql_db_name }}"
+    name: "{{ postgresql_user }}"
+    password: "{{ postgresql_password }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+    encrypted: yes
+
+
+#############################################################################
+# Give the user privileges to the created database
+#############################################################################
+- name: grant privileges on database
+  postgresql_privs:
+    db: "{{ postgresql_db_name }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    role: "{{ postgresql_user }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+    type: database
+    privs: ALL
+
+
+#############################################################################
+# Encode these credentials for the secret which will be added to applications
+# DB_HOST will not need to be namespace qualified here since applications
+# will live in the same namespace
+#############################################################################
+- name: encode bind credentials
+  asb_encode_binding:
+    fields:
+      DB_TYPE: postgres
+      DB_HOST: "{{ _apb_provision_creds.DB_HOST }}"
+      DB_PORT: "{{ _apb_provision_creds.DB_PORT }}"
+      DB_NAME: "{{ postgresql_db_name }}"
+      DB_USER: "{{ postgresql_user }}"
+      DB_PASSWORD: "{{ postgresql_password }}"

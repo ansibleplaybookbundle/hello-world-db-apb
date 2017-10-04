@@ -5,7 +5,7 @@ bindable: True
 async: optional
 metadata:
   displayName: Hello World Database (APB)
-  dependencies: ['docker.io/centos/postgresql-94-centos7']
+  dependencies: ['docker.io/centos/postgresql-95-centos7']
   providerDisplayName: "Red Hat, Inc."
 plans:
   - name: default
@@ -16,15 +16,22 @@ plans:
       longDescription: This plan deploys a Postgres Database the Hello World application can connect to
       cost: $0.00
     parameters:
-      - name: postgresql_database
+      - name: postgresql_admin_password
+        title: PostgreSQL Admin Password
+        type: string
+        required: true
+    bind_parameters:
+      - name: postgresql_db_name
         title: PostgreSQL Database Name
         type: string
-        default: admin
+        required: true
+        default: hello-world
       - name: postgresql_user
         title: PostgreSQL User
         type: string
-        default: admin
+        required: true
+        default: hello-world-user
       - name: postgresql_password
         title: PostgreSQL Password
         type: string
-        default: admin
+        required: true

@@ -1,0 +1,62 @@
+#############################################################################
+# Delete binding to hello-world-db
+# This role will delete the database, user, and privileges to revoke access
+# and delete a database used by an application.
+#
+# _apb_provision_creds - We use the provision encoded credentials as admin
+# credentials to perform the necessary tasks.  The created user to be deleted
+#
+# _apb_bind_creds - was stored as part of the bind encoded credentials and
+# and contains the database name and user information
+#
+# login_host uses the service which needs to be namespace qualified to resolve
+#############################################################################
+
+
+
+#############################################################################
+# Delete the user privileges
+#############################################################################
+- name: delete privileges on database
+  postgresql_privs:
+    db: "{{ _apb_bind_creds.DB_NAME }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    role: "{{ _apb_bind_creds.DB_USER }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+    type: database
+    privs: ALL
+    state: absent
+
+
+#############################################################################
+# Delete the user
+#############################################################################
+- name: delete database user
+  postgresql_user:
+    db: "{{ _apb_bind_creds.DB_NAME }}"
+    name: "{{ _apb_bind_creds.DB_USER }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+    state: absent
+
+
+#############################################################################
+# Delete a database created during the binding. In many cases we may not want to
+# delete the database.  In that case, you should skip the database deletion.
+#
+# We use the provision encoded credentials (_apb_provision_creds.XXX) as admin
+# credentials to perform the necessary tasks.
+# login_host uses the service which needs to be namespace qualified to resolve
+#############################################################################
+- name: delete database
+  postgresql_db:
+    name: "{{ _apb_bind_creds.DB_NAME }}"
+    port: "{{ _apb_provision_creds.DB_PORT }}"
+    login_host: "{{ _apb_provision_creds.DB_HOST }}.{{ namespace }}"
+    login_user: "{{ _apb_provision_creds.DB_ADMIN_USER }}"
+    login_password: "{{ _apb_provision_creds.DB_ADMIN_PASSWORD }}"
+    state: absent

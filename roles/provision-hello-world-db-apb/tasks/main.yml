@@ -44,13 +44,9 @@
       service: hello-world-db
     containers:
     - env:
-      - name: POSTGRESQL_PASSWORD
-        value: '{{ postgresql_password }}'
-      - name: POSTGRESQL_USER
-        value: '{{ postgresql_user }}'
-      - name: POSTGRESQL_DATABASE
-        value: '{{ postgresql_database }}'
-      image: docker.io/centos/postgresql-94-centos7
+      - name: POSTGRESQL_ADMIN_PASSWORD
+        value: '{{ postgresql_admin_password }}'
+      image: docker.io/centos/postgresql-95-centos7
       name: hello-world-db
       ports:
       - container_port: 5432
@@ -96,8 +92,8 @@
 
 #############################################################################
 # Bindable services must make credentials available to the Ansible Service
-# Broker during the provision stage.  They will later be made available to
-# applications after a binding is created.
+# Broker during the provision stage.  In this case they are admin credentials
+# which can be used during the bind stage to create databases, users, etc.
 # https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/design.md#using-a-service-instance
 #############################################################################
 - name: encode bind credentials
@@ -106,6 +102,5 @@
       DB_TYPE: postgres
       DB_HOST: hello-world-db
       DB_PORT: "5432"
-      DB_USER: "{{ postgresql_user }}"
-      DB_PASSWORD: "{{ postgresql_password }}"
-      DB_NAME: "{{ postgresql_database }}"
+      DB_ADMIN_USER: postgres
+      DB_ADMIN_PASSWORD: "{{ postgresql_admin_password }}"
