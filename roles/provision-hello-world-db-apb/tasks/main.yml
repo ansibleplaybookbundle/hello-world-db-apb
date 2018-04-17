@@ -28,6 +28,10 @@
 # one deployment of an image to a new one.
 # https://docs.openshift.org/latest/architecture/core_concepts/deployments.html#deployments-and-deployment-configurations
 #############################################################################
+- name: last_op_update
+  asb_last_operation:
+    description: "creating deployment config"
+
 - name: create hello-world-db deployment config
   openshift_v1_deployment_config:
     name: hello-world-db
@@ -69,6 +73,9 @@
       - type: ConfigChange
 
 
+- name: last_op_update
+  asb_last_operation:
+    description: "deployment config created"
 
 #############################################################################
 # A Kubernetes service serves as an internal load balancer.  It identifies a
@@ -92,6 +99,10 @@
       protocol: TCP
       target_port: 5432
 
+- name: last_op_update
+  asb_last_operation:
+    description: "kubernetes service created"      
+
 
 
 #############################################################################
@@ -100,6 +111,11 @@
 # applications after a binding is created.
 # https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/design.md#using-a-service-instance
 #############################################################################
+
+- name: last_op_update
+  asb_last_operation:
+    description: "ecoding credentials for later use"
+
 - name: encode bind credentials
   asb_encode_binding:
     fields:
